@@ -207,7 +207,6 @@ public class AIGuardController : MonoBehaviour {
 				}
 			}
 		}
-		print (closest);
 		return closest;
 	}
 

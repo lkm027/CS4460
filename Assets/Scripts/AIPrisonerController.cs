@@ -35,6 +35,8 @@ public class AIPrisonerController : MonoBehaviour {
 
 	private bool safe;
 
+	private bool enteredZone;
+
 
 
 	public enum State {
@@ -239,6 +241,15 @@ public class AIPrisonerController : MonoBehaviour {
 			break;
 
 		case State.SAFEZONE:
+			if (aiSteer.waypointsComplete () && !enteredZone) {
+//				print ("Player is safe");
+				enteredZone = true;
+				beginWaitTime = Time.timeSinceLevelLoad;
+			}
+			if (Time.timeSinceLevelLoad - beginWaitTime > 5.0f) {
+				transitionToNewGoal ();
+				enteredZone = false;
+			}
 			break;
 
 		case State.TAGGED:
@@ -259,13 +270,11 @@ public class AIPrisonerController : MonoBehaviour {
 	void OnTriggerExit(Collider other) {
 		if (other.transform.tag.Equals("Safe")) {
 			safe = false;
-			print ("NotSafe");
 		}
 	}
 
 	void OnTriggerEnter(Collider other) {
 		if (other.transform.tag.Equals("Safe")) {
-			print ("Safe");
 			safe = true;
 		}
 	}
