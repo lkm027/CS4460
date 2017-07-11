@@ -13,6 +13,8 @@ public class AIGuardController : MonoBehaviour {
 
 	public Transform[] walkingPoints;
 
+	public GameObject weapon;
+
 //	public Transform [] waypointSetC; 
 //
 //	public Transform waypointE;
@@ -23,7 +25,7 @@ public class AIGuardController : MonoBehaviour {
 
 	private bool isWalking;
 
-	private Transform closestPrisoner;
+	private GameObject closestPrisoner;
 
 
 
@@ -71,6 +73,15 @@ public class AIGuardController : MonoBehaviour {
 
 	void transitionToChase (GameObject prisoner) {
 		setSpeed (1.0f);
+		closestPrisoner = prisoner;
+		state = State.CHASEPRISONER;
+	}
+
+	void transitionToThrowandChase(GameObject prisoner) {
+		if (armed) {
+			shootBullet ();
+		}
+		closestPrisoner = prisoner;
 	}
 
 	void transitionToGetAmmo () {
@@ -84,106 +95,8 @@ public class AIGuardController : MonoBehaviour {
 	}
 
 
-//	void transitionToStateA() {
-//
-//		print("Transition to state A");
-//
-//		state = State.A;
-//
-//		//calculate the closest resource to the guard
-//		Transform closestResource = resources [0];
-//		float distance = calcDistance (closestResource.position);
-//		for (int i = 1; i < resources.Length; i++) {
-//			float calc = calcDistance (resources [i].position);
-//			if (calc < distance) {
-//				closestResource = resources[i];
-//				distance = calc;
-//			}
-//		}
-//
-//		aiSteer.setWayPoint (closestResource);
-////		aiSteer.setWayPoints(waypointSetA);
-//
-////		aiSteer.setWayPoint (prisoners [0].transform);
-//
-//		aiSteer.useNavMeshPathPlanning = true;
-//
-//
-//	}
 
-	float calcDistance(Vector3 res) {
-		Vector3 tran = transform.position;
-		float distance = Mathf.Sqrt (Mathf.Pow (res.x - tran.x, 2) +
-			Mathf.Pow (res.y - tran.y, 2) + Mathf.Pow (res.z - tran.z, 2));
-
-		return distance;
-	}
-
-
-
-
-//	void transitionToStateB() {
-//
-//		print("Transition to state B");
-//
-//		state = State.B;
-//
-//		float closestPrisonerDist = calcDistance (prisoners [0].position);
-//		closestPrisoner = prisoners [0];
-//
-//		foreach (Transform prisoner in prisoners) {
-//			float distToPrisoner = calcDistance (prisoner.position);
-//			if (distToPrisoner < closestPrisonerDist) {
-//				closestPrisonerDist = distToPrisoner;
-//				closestPrisoner = prisoner;
-//			}
-//		}
-//
-//		aiSteer.setWayPoint (closestPrisoner);
-////		aiSteer.setWayPoints(waypointSetB);
-//
-//		aiSteer.useNavMeshPathPlanning = true;
-//	}
-
-//
-//	void transitionToStateC() {
-//
-//		print("Transition to state C");
-//
-//		state = State.C;
-//
-//		aiSteer.setWayPoints(waypointSetC);
-//
-//		aiSteer.useNavMeshPathPlanning = false;
-//
-//	}
-//
-//	void transitionToStateD() {
-//
-//		print("Transition to state D");
-//
-//		state = State.D;
-//
-//		beginWaitTime = Time.timeSinceLevelLoad;
-//
-//		aiSteer.clearWaypoints ();
-//
-//		aiSteer.useNavMeshPathPlanning = true;
-//
-//	}
-//
-//
-//	void transitionToStateE() {
-//
-//		print("Transition to state E");
-//
-//		state = State.E;
-//
-//		aiSteer.setWayPoint (waypointE);
-//
-//		aiSteer.useNavMeshPathPlanning = true;
-//
-//	}
+		
 
 	// Update is called once per frame
 	void Update () {
@@ -192,7 +105,7 @@ public class AIGuardController : MonoBehaviour {
 		{
 
 		case State.WALKAROUND:
-			GameObject closestPrisoner = findClosestPrisoner ();
+			closestPrisoner = findClosestPrisoner ();
 			if (closestPrisoner != null) {
 				transitionToChase (closestPrisoner);
 			} else if (!armed) {
@@ -211,46 +124,27 @@ public class AIGuardController : MonoBehaviour {
 
 		case State.GETAMMO:
 			if (aiSteer.waypointsComplete ()) {
-				armed = true;
+				addAmmo ();
 				transitionToWalkingState ();
 			}
 			break;
-		//Gather resources
-//		case State.A:
-//			if (aiSteer.waypointsComplete()) {
-//				armed = true;
-//				transitionToStateB();
-//			}
-//				
-//			break;
-//
-//		//Chase Prisoner
-//		case State.B:
-////			aiSteer.setWayPoint (prisoners [0].transform);
-//			//changed the guard's destination to the prisoners destination
-//
-////			Transform dest = prisoners [0].GetComponent<AIPrisonerController> ().getDestination ();
-////			aiSteer.setWayPoint (dest);
-//			aiSteer.setWayPoint(closestPrisoner);
-//			if (aiSteer.waypointsComplete())
-//				transitionToStateA();
-//			break;
-//
-//		case State.C:
-//			if (aiSteer.waypointsComplete())
-//				transitionToStateD();
-//			break;
-//
-//		case State.D:
-//			if (Time.timeSinceLevelLoad - beginWaitTime > waitTime)
-//				transitionToStateE();
-//			break;
-//
-//		case State.E:
-//			if (aiSteer.waypointsComplete ())
-//				break;
-//			//					transitionToStateA();
-//			break;
+
+		case State.CHASEPRISONER:
+			if (closestPrisoner.GetComponent<AIPrisonerController>().isSafe()) {
+				closestPrisoner = null;
+				shootBullet ();
+				state = State.WALKAROUND;
+			} else {
+				GameObject nearPrisoner = findClosestPrisoner ();
+				if (nearPrisoner != closestPrisoner) {
+					transitionToThrowandChase (nearPrisoner);
+				}
+				aiSteer.setWayPoint (closestPrisoner.transform);
+			}
+
+			break;
+	
+
 		default:
 
 			print("Weird?");
@@ -263,26 +157,57 @@ public class AIGuardController : MonoBehaviour {
 	void OnTriggerEnter(Collider other) {
 		if (other.transform.tag.Equals("Prisoner")) {
 			print ("Prisoner has been tagged");
+			state = State.WALKAROUND;
+
 			AIPrisonerController prisonScript = other.transform.gameObject
 				.GetComponent<AIPrisonerController>();
 			prisonScript.hasBeenTagged ();
+		} else if (other.transform.tag.Equals("Ammo")) {
+			addAmmo ();
 		}
+	}
+
+
+
+	//Calculate the distance between this object and another object
+	float calcDistance(Vector3 res) {
+		Vector3 tran = transform.position;
+		float distance = Mathf.Sqrt (Mathf.Pow (res.x - tran.x, 2) +
+			Mathf.Pow (res.y - tran.y, 2) + Mathf.Pow (res.z - tran.z, 2));
+
+		return distance;
 	}
 
 	public bool isArmed() {
 		return armed;
 	}
 
+	private void shootBullet() {
+		armed = false;
+		weapon.SetActive (false);
+	}
+
+	private void addAmmo() {
+		armed = true;
+		print ("Added Ammo");
+		weapon.SetActive (true);
+	}
+
 	GameObject findClosestPrisoner() {
 		float distance = float.MaxValue;
 		GameObject closest = null;
 		foreach (GameObject prisoner in prisoners) {
-			float distanceToPrisoner = calcDistance (prisoner.transform.position);
-			if (distanceToPrisoner < distance && distanceToPrisoner < 15.0f) {
-				distance = distanceToPrisoner;
-				closest = prisoner;
-			}	
+			bool tagged = prisoner.GetComponent<AIPrisonerController> ().isTagged ();
+			bool safe = prisoner.GetComponent<AIPrisonerController> ().isSafe ();
+			if (!tagged && !safe) {
+				float distanceToPrisoner = calcDistance (prisoner.transform.position);
+				if (distanceToPrisoner < distance && distanceToPrisoner < 15.0f) {
+					distance = distanceToPrisoner;
+					closest = prisoner;
+				}
+			}
 		}
+		print (closest);
 		return closest;
 	}
 

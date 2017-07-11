@@ -361,6 +361,8 @@ MonoBehaviour:
   - {fileID: 0}
   prisoners:
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   walkingPoints:
   - {fileID: 0}
   - {fileID: 0}

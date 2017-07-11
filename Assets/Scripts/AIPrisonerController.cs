@@ -33,6 +33,8 @@ public class AIPrisonerController : MonoBehaviour {
 
 	private bool tagged;
 
+	private bool safe;
+
 
 
 	public enum State {
@@ -66,8 +68,6 @@ public class AIPrisonerController : MonoBehaviour {
 //		transitionToStateA();
 		transitionToNewGoal();
 
-		oldGoal = findClosestGoal ();
-
 		oldSafeZone = transform;
 		destination = transform;
 
@@ -76,8 +76,9 @@ public class AIPrisonerController : MonoBehaviour {
 	void transitionToNewGoal() {
 		print ("Transition to Goal");
 		state = State.TONEWGOAL;
+		oldGoal = findClosestGoal ();
 
-		if (oldGoal = goals[0]) {
+		if (oldGoal == goals[0]) {
 			aiSteer.setWayPoint (goals [1]);
 		} else {
 			aiSteer.setWayPoint (goals [0]);
@@ -232,6 +233,8 @@ public class AIPrisonerController : MonoBehaviour {
 				transitionToNearestSafeZone ();
 			} else if (closestGuard < 10.0f) {
 				transitionToNearestSafeZone (); 
+			} else if (aiSteer.waypointsComplete()) {
+				transitionToNewGoal ();
 			}
 			break;
 
@@ -241,27 +244,8 @@ public class AIPrisonerController : MonoBehaviour {
 		case State.TAGGED:
 //			transitionToStateTAGGED ();
 			break;
-//
-//		case State.B:
-//			if (aiSteer.waypointsComplete())
-//				transitionToStateC();
-//			break;
-//
-//		case State.C:
-//			if (aiSteer.waypointsComplete())
-//				transitionToStateD();
-//			break;
-//
-//		case State.D:
-//			if (Time.timeSinceLevelLoad - beginWaitTime > waitTime)
-//				transitionToStateE();
-//			break;
-//
-//		case State.E:
-//			if (aiSteer.waypointsComplete ())
-//				break;
-//			//					transitionToStateA();
-//			break;
+
+
 		default:
 
 			print("Weird?");
@@ -269,6 +253,21 @@ public class AIPrisonerController : MonoBehaviour {
 		}
 
 
+	}
+
+
+	void OnTriggerExit(Collider other) {
+		if (other.transform.tag.Equals("Safe")) {
+			safe = false;
+			print ("NotSafe");
+		}
+	}
+
+	void OnTriggerEnter(Collider other) {
+		if (other.transform.tag.Equals("Safe")) {
+			print ("Safe");
+			safe = true;
+		}
 	}
 
 	public void hasBeenTagged() {
@@ -333,5 +332,9 @@ public class AIPrisonerController : MonoBehaviour {
 
 	public bool isTagged() {
 		return tagged;
+	}
+
+	public bool isSafe() {
+		return safe;
 	}
 }

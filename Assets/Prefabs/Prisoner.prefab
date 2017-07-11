@@ -182,6 +182,8 @@ MonoBehaviour:
   - {fileID: 0}
   guards:
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   state: 0
   waitTime: 5
 --- !u!114 &114672910620903682

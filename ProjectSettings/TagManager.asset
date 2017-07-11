@@ -8,6 +8,8 @@ TagManager:
   - grabbable
   - ground
   - Prisoner
+  - Ammo
+  - Safe
   layers:
   - Default
   - TransparentFX
