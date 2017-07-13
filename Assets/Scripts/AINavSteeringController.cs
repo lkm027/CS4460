@@ -343,8 +343,8 @@ public class AINavSteeringController : MonoBehaviour
             AIControlled_Update ();
 
         #if UNITY_EDITOR
-		if(debugOutput)
-			DebugDrawPath ();
+//		if(debugOutput)
+//			DebugDrawPath ();
         #endif
 	}
 
@@ -946,42 +946,42 @@ public class AINavSteeringController : MonoBehaviour
 
 
 	//draw path to current waypoint on game view
-	void DebugDrawPath()
-	{
-
-		if( agent == null || agent.path == null )
-			return;
-
-		if( line == null )
-		{
-			
-			line = this.GetComponent<LineRenderer>();
-
-			if (line == null) {
-
-				line = this.gameObject.AddComponent<LineRenderer> ();
-				line.material = new Material (Shader.Find ("Sprites/Default")) { color = Color.yellow };
-				line.startWidth = line.endWidth = 0.25f;             
-				line.startColor = line.endColor = Color.yellow;
-
-			}
-		}
-
-		var path = agent.path;
-
-        line.positionCount = path.GetCornersNonAlloc(corners);
-		//line.numPositions = path.corners.Length;
-
-        for( int i = 0; i < line.positionCount ; ++i) 
-		//for( int i = 0; i < path.corners.Length; i++ )
-		{
-            Vector3 c = corners[i];
-			//Vector3 c = path.corners [i];
-			c.Set (c.x, c.y+0.1f, c.z);			
-			line.SetPosition( i, c );
-		}
-
-	}
+//	void DebugDrawPath()
+//	{
+//
+//		if( agent == null || agent.path == null )
+//			return;
+//
+//		if( line == null )
+//		{
+//			
+//			line = this.GetComponent<LineRenderer>();
+//
+//			if (line == null) {
+//
+//				line = this.gameObject.AddComponent<LineRenderer> ();
+//				line.material = new Material (Shader.Find ("Sprites/Default")) { color = Color.yellow };
+//				line.startWidth = line.endWidth = 0.25f;             
+//				line.startColor = line.endColor = Color.yellow;
+//
+//			}
+//		}
+//
+//		var path = agent.path;
+//
+//        line.positionCount = path.GetCornersNonAlloc(corners);
+//		//line.numPositions = path.corners.Length;
+//
+//        for( int i = 0; i < line.positionCount ; ++i) 
+//		//for( int i = 0; i < path.corners.Length; i++ )
+//		{
+//            Vector3 c = corners[i];
+//			//Vector3 c = path.corners [i];
+//			c.Set (c.x, c.y+0.1f, c.z);			
+//			line.SetPosition( i, c );
+//		}
+//
+//	}
 
     #endif
 }

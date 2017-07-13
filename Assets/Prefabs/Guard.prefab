@@ -113,7 +113,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4400919290495140}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4269408209896870
 Transform:
@@ -126,7 +126,7 @@ Transform:
   m_LocalScale: {x: 0.52935517, y: 0.52935517, z: 0.52935517}
   m_Children: []
   m_Father: {fileID: 4400919290495140}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4341988604111164
 Transform:
@@ -148,12 +148,12 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1054074894175262}
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071067}
-  m_LocalPosition: {x: 0.72, y: -9.972414, z: 13.07}
+  m_LocalPosition: {x: 0.33, y: -9.972414, z: -2.35}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4341988604111164}
-  - {fileID: 4009917668642746}
   - {fileID: 4269408209896870}
+  - {fileID: 4009917668642746}
   - {fileID: 4798328801688460}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -363,11 +363,15 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   walkingPoints:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  weapon: {fileID: 100000, guid: 678c06e74c7d34777820ced9a22c377f, type: 2}
   state: 0
   waitTime: 5
 --- !u!114 &114354215990259020
@@ -422,7 +426,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 0.8
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!136 &136592974659831498
 CapsuleCollider:
@@ -500,5 +504,5 @@ NavMeshAgent:
   m_AutoRepath: 1
   m_Height: 2
   m_BaseOffset: 0
-  m_WalkableMask: 41
+  m_WalkableMask: 105
   m_ObstacleAvoidanceType: 4

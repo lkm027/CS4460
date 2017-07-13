@@ -10,6 +10,8 @@ TagManager:
   - Prisoner
   - Ammo
   - Safe
+  - Guard
+  - Scenery
   layers:
   - Default
   - TransparentFX

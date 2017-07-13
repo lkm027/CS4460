@@ -15,21 +15,11 @@ public class AIPrisonerController : MonoBehaviour {
 
 	public GameObject[] guards;
 
-//	public Transform [] waypointSetB; 
-//
-//	public Transform [] waypointSetC; 
-
-//	public Transform waypointE;
-
-//	private bool tagged;
-
+	//what is destination
 	private Transform destination;
 
-	private Transform oldSafeZone;
-
+	//what is oldGoal
 	private Transform oldGoal;
-
-	private bool isBeingChased;
 
 	private bool tagged;
 
@@ -37,17 +27,19 @@ public class AIPrisonerController : MonoBehaviour {
 
 	private bool enteredZone;
 
+	//Time a player waits in a safeZone before running
+	private float SafeZoneWaitTime = 2.5f;
+
 
 
 	public enum State {
-		A, TAGGED, TONEWGOAL, SAFEZONE
-
-//		A,B,C,D,E
+		TAGGED, TONEWGOAL, SAFEZONE
+		//Add evade state maybe
 
 	}
 
 
-	public State state = State.A;
+	public State state = State.TONEWGOAL;
 
 	public float waitTime = 5f;
 
@@ -67,14 +59,14 @@ public class AIPrisonerController : MonoBehaviour {
 		aiSteer.waypointLoop = false;
 		aiSteer.stopAtNextWaypoint = false;
 
-//		transitionToStateA();
 		transitionToNewGoal();
 
-		oldSafeZone = transform;
+
 		destination = transform;
 
 	}
 
+	//Finds the goal a player should transition to
 	void transitionToNewGoal() {
 		print ("Transition to Goal");
 		state = State.TONEWGOAL;
@@ -88,58 +80,20 @@ public class AIPrisonerController : MonoBehaviour {
 		aiSteer.useNavMeshPathPlanning = true;
 	}
 
+	//finds the closest safezone that a player should transition to
 	void transitionToNearestSafeZone() {
 		print ("Transition to nearest Safe Zone");
 		state = State.SAFEZONE;
 
 		Transform closestZone = findClosestSafeZone ();
+		if (closestZone == null) {
+			state = State.TONEWGOAL;
+			closestZone = findClosestGoal ();
+		}
 		aiSteer.setWayPoint (closestZone);
 		aiSteer.useNavMeshPathPlanning = true;
 	}
-
-
-	void transitionToStateA() {
-
-		print("Transition to state A: Get to Destination Zone");
-
-		state = State.A;
-
-		bool dest = false;
-
-		foreach (Transform pos in goals) {
-			if (oldSafeZone != pos && checkIfZoneIsReachable(pos)) {
-				dest = true;
-				destination = pos;
-			}
-		}
-
-		if (!dest) {
-			foreach (Transform pos in safeZones) {
-				if(oldSafeZone != pos && checkIfZoneIsReachable(pos)) {
-					dest = true;
-					destination = pos;
-				}
-			}
-		}
-			
-		aiSteer.setWayPoint (destination);
-		oldSafeZone = destination;
-		aiSteer.useNavMeshPathPlanning = true;
-
-
-//		//flip our destinations
-//		if (oldSafeZone == null || oldSafeZone.Equals(waypointSetA[0])) {
-//			oldSafeZone = waypointSetA [1];
-//		} else {
-//			oldSafeZone = waypointSetA [0];
-//		}
-//		aiSteer.setWayPoint(oldSafeZone);
-//		destination = oldSafeZone;
-//
-//		aiSteer.useNavMeshPathPlanning = true;
-
-
-	}
+		
 
 	void transitionToStateTAGGED() {
 		print ("Transitioning to Tagged State");
@@ -159,101 +113,41 @@ public class AIPrisonerController : MonoBehaviour {
 		aiSteer.setWayPoint (closestZone);
 	}
 
-//	float calcDistance(Vector3 res) {
-//		Vector3 tran = transform.position;
-//		float distance = Mathf.Sqrt (Mathf.Pow (res.x - tran.x, 2) +
-//			Mathf.Pow (res.y - tran.y, 2) + Mathf.Pow (res.z - tran.z, 2));
-//
-//		return distance;
-//	}
 
-//
-//	void transitionToStateB() {
-//
-//		print("Transition to state B");
-//
-//		state = State.B;
-//
-//		aiSteer.setWayPoints(waypointSetB);
-//
-//		aiSteer.useNavMeshPathPlanning = true;
-//	}
-//
-//
-//	void transitionToStateC() {
-//
-//		print("Transition to state C");
-//
-//		state = State.C;
-//
-//		aiSteer.setWayPoints(waypointSetC);
-//
-//		aiSteer.useNavMeshPathPlanning = false;
-//
-//	}
-//
-//	void transitionToStateD() {
-//
-//		print("Transition to state D");
-//
-//		state = State.D;
-//
-//		beginWaitTime = Time.timeSinceLevelLoad;
-//
-//		aiSteer.clearWaypoints ();
-//
-//		aiSteer.useNavMeshPathPlanning = true;
-//
-//	}
-//
-//
-//	void transitionToStateE() {
-//
-//		print("Transition to state E");
-//
-//		state = State.E;
-//
-//		aiSteer.setWayPoint (waypointE);
-//
-//		aiSteer.useNavMeshPathPlanning = true;
-//
-//	}
 
 	// Update is called once per frame
 	void Update () {
 
 		switch (state)
 		{
-		case State.A:
-			if (aiSteer.waypointsComplete ())
-				transitionToStateA ();
-			break;
-
+		//Player should run to the furthest goal unless a guard is near
 		case State.TONEWGOAL:
 			float closestGuard = findDistToClosestGuard ();
-			if (isBeingChased && closestGuard < 15.0f) {
-				transitionToNearestSafeZone ();
-			} else if (closestGuard < 10.0f) {
+			if (closestGuard < 10.0f) {
 				transitionToNearestSafeZone (); 
 			} else if (aiSteer.waypointsComplete()) {
 				transitionToNewGoal ();
 			}
 			break;
-
+		
+		//Player should run towards the closest safeZone
 		case State.SAFEZONE:
 			if (aiSteer.waypointsComplete () && !enteredZone) {
-//				print ("Player is safe");
 				enteredZone = true;
 				beginWaitTime = Time.timeSinceLevelLoad;
 			}
-			if (Time.timeSinceLevelLoad - beginWaitTime > 5.0f) {
+			if (aiSteer.waypointsComplete() &&  Time.timeSinceLevelLoad - beginWaitTime > SafeZoneWaitTime) {
 				transitionToNewGoal ();
 				enteredZone = false;
 			}
 			break;
-
+		
+			//player is tagged and out of play
 		case State.TAGGED:
-//			transitionToStateTAGGED ();
+			if (aiSteer.waypointsComplete()) {
+				GameObject levelManager = GameObject.Find ("LevelManager");
+				levelManager.GetComponent<LevelManager> ().addTagged ();
+			}
 			break;
 
 
@@ -266,13 +160,14 @@ public class AIPrisonerController : MonoBehaviour {
 
 	}
 
-
+	//On exiting a safe zone, a player is no longer considered safe and can be chased
 	void OnTriggerExit(Collider other) {
 		if (other.transform.tag.Equals("Safe")) {
 			safe = false;
 		}
 	}
 
+	//When entering a safe zone a player is considered safe and cannot be chased
 	void OnTriggerEnter(Collider other) {
 		if (other.transform.tag.Equals("Safe")) {
 			safe = true;
@@ -288,21 +183,21 @@ public class AIPrisonerController : MonoBehaviour {
 		return destination;
 	}
 
-	//Check if a zone is reachable
-	// 1. Either the player can get there first or if guards don't have a throwable
-	private bool checkIfZoneIsReachable(Transform zone) {
-		bool canMakeIt = true;
-		float prisonerDistance = calcDistance (zone.position, transform.position);
-		for (int i = 0; i < guards.Length; i++) {
-			if (guards[i].GetComponent<AIGuardController>().isArmed()) {
-				if (calcDistance(zone.position, guards[i].transform.position) >= prisonerDistance) {
-					canMakeIt = false;
-				}
-			}
-		}
-		return canMakeIt;
-	}
+//	//Check if a zone is reachable
+//	private bool checkIfZoneIsReachable(Transform zone) {
+//		bool canMakeIt = true;
+//		float prisonerDistance = calcDistance (zone.position, transform.position);
+//		for (int i = 0; i < guards.Length; i++) {
+//			if (guards[i].GetComponent<AIGuardController>().isArmed()) {
+//				if (calcDistance(zone.position, guards[i].transform.position) >= prisonerDistance) {
+//					canMakeIt = false;
+//				}
+//			}
+//		}
+//		return canMakeIt;
+//	}
 
+	//Finds the distance between two objects
 	float calcDistance(Vector3 res, Vector3 tran) {
 		float distance = Mathf.Sqrt (Mathf.Pow (res.x - tran.x, 2) +
 			Mathf.Pow (res.y - tran.y, 2) + Mathf.Pow (res.z - tran.z, 2));
@@ -319,13 +214,35 @@ public class AIPrisonerController : MonoBehaviour {
 		return goals[1];
 	}
 
-	//Finds the closest safezone to the prisoner
+	//Finds the closest safezone to the prisoner that is not full
 	private Transform findClosestSafeZone() {
+		//The amount of prisoners currently in a safezone
+		//If a safeZone is full, a prisoner will not try to go to it
+		bool zone1Full = safeZones [0].GetComponent<SafeZoneController> ().isFull ();
+		bool zone2Full = safeZones [1].GetComponent<SafeZoneController> ().isFull ();
+
+
 		float safeZones1 = calcDistance (safeZones [0].position, transform.position);
 		float safeZones2 = calcDistance (safeZones [1].position, transform.position);
-		if (safeZones1 < safeZones2)
+
+		if (safeZones1 < safeZones2) {
+			if (zone1Full) {
+				if (zone2Full) {
+					return null;
+				} else {
+					return safeZones [1];
+				}
+			}
 			return safeZones [0];
-		return safeZones[1];
+		}
+
+		if (zone2Full) {
+			if (zone1Full) {
+				return null;
+			}
+			return safeZones [0];
+		}
+		return safeZones [1];
 	}
 
 	private float findDistToClosestGuard() {
@@ -339,10 +256,12 @@ public class AIPrisonerController : MonoBehaviour {
 		return closest;
 	}
 
+	//returns if the players is tagged
 	public bool isTagged() {
 		return tagged;
 	}
 
+	//returns if the player is currently safe
 	public bool isSafe() {
 		return safe;
 	}

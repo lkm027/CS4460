@@ -15,24 +15,19 @@ public class AIGuardController : MonoBehaviour {
 
 	public GameObject weapon;
 
-//	public Transform [] waypointSetC; 
-//
-//	public Transform waypointE;
-//
-//	public GameObject [] prisoners;
-
 	private bool armed;
 
 	private bool isWalking;
 
 	private GameObject closestPrisoner;
 
+	private GameObject bullet;
+
 
 
 	public enum State {
 
 		WALKAROUND, CHASEPRISONER, GETAMMO
-//		A,B,C,D,E
 
 	}
 
@@ -57,8 +52,6 @@ public class AIGuardController : MonoBehaviour {
 		aiSteer.waypointLoop = false;
 		aiSteer.stopAtNextWaypoint = false;
 
-//		transitionToStateA();
-
 		transitionToWalkingState ();
 
 		//guards don't have throwables at start
@@ -66,23 +59,27 @@ public class AIGuardController : MonoBehaviour {
 
 	}
 
+	//Guards should walk from guard post to guard post, unless they do not have ammo, or are near a prisoner
 	void transitionToWalkingState() {
 		state = State.WALKAROUND;
 		isWalking = false;
 	}
 
+	//Speed should increase and they should chase
 	void transitionToChase (GameObject prisoner) {
 		setSpeed (1.0f);
 		closestPrisoner = prisoner;
 		state = State.CHASEPRISONER;
 	}
 
+	//A closer prisoner has been found so they should shoot at the old prisoner and chase the newer one
 	void transitionToThrowandChase(GameObject prisoner) {
 		if (armed) {
 			shootBullet ();
 		}
 		closestPrisoner = prisoner;
 	}
+
 
 	void transitionToGetAmmo () {
 		print ("Transitioning to get Ammo");
@@ -103,7 +100,7 @@ public class AIGuardController : MonoBehaviour {
 		
 		switch (state)
 		{
-
+		//Walk from post to post unless they do not have ammo or are near a prisoner
 		case State.WALKAROUND:
 			closestPrisoner = findClosestPrisoner ();
 			if (closestPrisoner != null) {
@@ -130,16 +127,22 @@ public class AIGuardController : MonoBehaviour {
 			break;
 
 		case State.CHASEPRISONER:
-			if (closestPrisoner.GetComponent<AIPrisonerController>().isSafe()) {
-				closestPrisoner = null;
+			//if the closest prisoner has transition to a safe state then we should shoot and walk around
+			if (closestPrisoner != null && closestPrisoner.GetComponent<AIPrisonerController>().isSafe()) {
 				shootBullet ();
+				closestPrisoner = null;
 				state = State.WALKAROUND;
+				break;
 			} else {
+				//if we find a new closer prisoner then we should shoot at the old  
+				//one and chase the new closer prisoner
 				GameObject nearPrisoner = findClosestPrisoner ();
 				if (nearPrisoner != closestPrisoner) {
 					transitionToThrowandChase (nearPrisoner);
 				}
-				aiSteer.setWayPoint (closestPrisoner.transform);
+				//Chase the old/current closest prisoner
+				if (closestPrisoner != null)
+					aiSteer.setWayPoint (closestPrisoner.transform);
 			}
 
 			break;
@@ -154,7 +157,9 @@ public class AIGuardController : MonoBehaviour {
 
 	}
 
+
 	void OnTriggerEnter(Collider other) {
+		//Colliding with a prisoner tags the prisoner
 		if (other.transform.tag.Equals("Prisoner")) {
 			print ("Prisoner has been tagged");
 			state = State.WALKAROUND;
@@ -162,6 +167,8 @@ public class AIGuardController : MonoBehaviour {
 			AIPrisonerController prisonScript = other.transform.gameObject
 				.GetComponent<AIPrisonerController>();
 			prisonScript.hasBeenTagged ();
+
+		//Colliding with ammo reloads the ammo of the guard
 		} else if (other.transform.tag.Equals("Ammo")) {
 			addAmmo ();
 		}
@@ -178,25 +185,52 @@ public class AIGuardController : MonoBehaviour {
 		return distance;
 	}
 
+	//Returns if the guard has ammo
 	public bool isArmed() {
 		return armed;
 	}
 
+	//If the guard has ammo, they shoot a bullet
 	private void shootBullet() {
+		if (armed) {
+			print ("shooting");
+			Vector3 pos = transform.position;
+
+			GameObject bull = Instantiate (weapon,new Vector3(pos.x, pos.y + 1.0f, pos.z), Quaternion.identity);
+			//
+			Vector3 targetVelocity = closestPrisoner.GetComponent<Rigidbody> ().velocity;
+			Vector3 targetPosition = closestPrisoner.transform.position;
+			Vector3 bulletPosition = new Vector3(pos.x, pos.y + 1.0f, pos.z);
+			float time = 1.0f;
+
+			Vector3 bulletVel = targetVelocity + ((targetPosition - bulletPosition) / time);
+			bulletVel.y = 0;
+			bull.GetComponent<Rigidbody> ().velocity = bulletVel;
+
+			Destroy (bullet);
+		}
+			
 		armed = false;
-		weapon.SetActive (false);
 	}
 
+	//Give the guard ammo
 	private void addAmmo() {
-		armed = true;
-		print ("Added Ammo");
-		weapon.SetActive (true);
+		if (!armed) {
+			armed = true;
+			print ("Added Ammo");
+			Vector3 pos = transform.position;
+			bullet = Instantiate (weapon, new Vector3(pos.x, pos.y + 5.0f, pos.z), Quaternion.identity);
+			bullet.transform.parent = transform;
+		}
+
 	}
 
+	//Finds the closest prisoner
 	GameObject findClosestPrisoner() {
 		float distance = float.MaxValue;
 		GameObject closest = null;
 		foreach (GameObject prisoner in prisoners) {
+			//make sure the prisoner is not tagged or in a safe zone
 			bool tagged = prisoner.GetComponent<AIPrisonerController> ().isTagged ();
 			bool safe = prisoner.GetComponent<AIPrisonerController> ().isSafe ();
 			if (!tagged && !safe) {
@@ -210,6 +244,7 @@ public class AIGuardController : MonoBehaviour {
 		return closest;
 	}
 
+	//Finds the closest source of ammo
 	Transform findClosestAmmo () {
 		float distance = float.MaxValue;
 		Transform closest = resources[0];
@@ -223,6 +258,7 @@ public class AIGuardController : MonoBehaviour {
 		return closest;
 	}
 
+	//Sets the speed of the guard
 	private void setSpeed(float speed) {
 		GetComponent<AINavSteeringController> ().mecanimInputForwardSpeedCap = speed;
 	}

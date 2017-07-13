@@ -22,11 +22,8 @@ GameObject:
   - component: {fileID: 95088298868226392}
   - component: {fileID: 54098882219660582}
   - component: {fileID: 136401519363724968}
-  - component: {fileID: 114758456826797038}
-  - component: {fileID: 114672910620903682}
   - component: {fileID: 114964128437476432}
   - component: {fileID: 195888540779187436}
-  - component: {fileID: 114094503013180112}
   - component: {fileID: 114170119122139432}
   m_Layer: 0
   m_Name: Prisoner
@@ -99,7 +96,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1573257223804466}
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071067}
-  m_LocalPosition: {x: 7.62, y: -9.972414, z: 31.21}
+  m_LocalPosition: {x: 6.4, y: -9.972414, z: 18.18}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4168426148998170}
@@ -139,25 +136,6 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 0
   m_AllowConstantClipSamplingOptimization: 1
---- !u!114 &114094503013180112
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1573257223804466}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c6b955faf1757495eb9f925fdf54b7af, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  waypointSetA:
-  - {fileID: 0}
-  - {fileID: 0}
-  waypointSetB: []
-  waypointSetC: []
-  waypointE: {fileID: 0}
-  state: 0
-  waitTime: 5
 --- !u!114 &114170119122139432
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -186,31 +164,6 @@ MonoBehaviour:
   - {fileID: 0}
   state: 0
   waitTime: 5
---- !u!114 &114672910620903682
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1573257223804466}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74715e86e24e64a6b8d1adf80d38f61a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &114758456826797038
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1573257223804466}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6331ab6fdeaa49ebb0a2efa9e635a5f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animSpeed: 1.5
-  lookSmoother: 3
-  useCurves: 1
 --- !u!114 &114964128437476432
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -337,5 +290,5 @@ NavMeshAgent:
   m_AutoRepath: 1
   m_Height: 2
   m_BaseOffset: 0
-  m_WalkableMask: 17
+  m_WalkableMask: 81
   m_ObstacleAvoidanceType: 4

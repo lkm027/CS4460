@@ -14,10 +14,10 @@ NavMeshProjectSettings:
   - name: Guard
     cost: 1
   - name: Safe Zones
-    cost: 1
+    cost: 10
   - name: Guard Posts
     cost: 1
-  - name: 
+  - name: Walkways
     cost: 1
   - name: 
     cost: 1

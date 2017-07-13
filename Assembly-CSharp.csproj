@@ -52,8 +52,12 @@
      <Compile Include="Assets\Scripts\AIPrisonerController.cs" />
      <Compile Include="Assets\Scripts\AnimTriggers.cs" />
      <Compile Include="Assets\Scripts\BotControlScript.cs" />
+     <Compile Include="Assets\Scripts\BulletController.cs" />
+     <Compile Include="Assets\Scripts\BulletCreator.cs" />
      <Compile Include="Assets\Scripts\EventManager.cs" />
      <Compile Include="Assets\Scripts\LaserEyes.cs" />
+     <Compile Include="Assets\Scripts\LevelManager.cs" />
+     <Compile Include="Assets\Scripts\SafeZoneController.cs" />
      <Compile Include="Assets\Scripts\Samoflange.cs" />
      <Compile Include="Assets\Scripts\SecurityCamera.cs" />
      <Compile Include="Assets\Scripts\TestExpMovingAvg.cs" />
